@@ -1,0 +1,31 @@
+<div class="w3-content w3-margin-top" style="max-width:1400px;">
+<div class="w3-row-padding">
+
+    <div id="parent" class="w3-white w3-text-grey w3-card-4">
+  <div id="smallbox" style="text-align:center;"><img src="{{.TrackImage}}" width="200px" style="border:2px solid beige;" /></div>
+  <div id="rightbox">
+    <br/><br/>
+    <span class="trackArtist">{{.TrackArtist}}</span>
+    <br/>
+    <span class="trackTitle">{{.TrackName}}</span>
+    <br/>
+    <a id="play" href="javascript:void(0);" onclick="spotify(this.id)"><img src="/res/play-button.png" width="35px" style="margin:20px 5px 5px 0px;" /></a>
+    <a id="pause" href="javascript:void(0);" onclick="spotify(this.id)"><img src="/res/stop.png" width="35px" style="margin:20px 5px 5px 5px;" /></a>
+    <a id="next" href="javascript:void(0);" onclick="spotify(this.id)"><img src="/res/skip.png" width="35px" style="margin:20px 5px 5px 5px;" /></a>
+    <a id="previous" href="javascript:void(0);" onclick="spotify(this.id)"><img src="/res/previous.png" width="35px" style="margin:20px 5px 5px 5px;" /></a>
+  </div>
+    </div>
+</div>
+    {{.Notification}}
+    </div>
+
+ <script type="text/javascript">
+   function spotify(clicked_id)
+{
+   $.ajax({
+     type: "GET",
+     url: 'http://soda.local:8080/player/'+clicked_id,
+   });
+
+}
+</script>

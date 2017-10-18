@@ -1,0 +1,70 @@
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/css?family=PT+Sans+Narrow" rel="stylesheet">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+    <link rel="stylesheet" type="text/css" href="/res/main.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
+    <script type="text/javascript" src="/res/main.js"></script>
+
+  </head>
+  <body class="w3-light-grey">
+<div class="w3-content w3-margin-top" style="max-width:1400px;">
+<div class="w3-row-padding">
+  <div id="parent" class="w3-white w3-text-grey w3-card-4">
+  <div id="smallbox-clock">
+    <span id="date"></span>, <span id="time"></span>
+  </div>
+</div>
+</div>
+    </div>
+    <div id="player-container"></div>
+    
+    
+  <script type="text/javascript">
+  $(document).ready(function () {
+    var interval = 5000;   //number of mili seconds between each call
+    var refresh = function() {
+        $.ajax({
+            url: "player",
+            cache: false,
+            success: function(html) {
+                $('#player-container').html(html);
+                setTimeout(function() {
+                    refresh();
+                }, interval);
+            }
+        });
+    };
+    refresh();
+    
+    
+    var d = new Date();
+    var monthNames = [ "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" ];
+
+    var date = document.getElementById("date");
+    var time = document.getElementById("time");
+
+    function getDate() {
+      date.innerHTML = monthNames[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+    }
+
+    function timer() {
+        var d = new Date();
+        var hours = d.getHours();
+        var minutes = d.getMinutes();
+        var ampm = hours <= 11 ? 'am' : 'pm';
+        var strTime = [hours % 12,
+                      (minutes < 10 ? "0" + minutes : minutes)
+                      ].join(':') + ampm;
+        time.innerHTML = strTime;
+    }
+
+    getDate();
+    timer();
+    
+    setInterval(getDate, 60000);
+    setInterval(timer, 10000);
+  });
+  </script>
+  </body>
+</html>
