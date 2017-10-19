@@ -3,25 +3,22 @@ package main
 import "net/http"
 import "log"
 
-var p = SetupParameters{
-	SetupSpotifyNotification: "",
-	SetupSpotifyLink:"",
-}
-
 func InitialSetup(w http.ResponseWriter, r *http.Request) {
-	createSpotiPiLink()
+	url := auth.AuthURL(state)
 
-	err := templates.ExecuteTemplate(w, setupHtml, p)
+	data := map[string]interface{}{
+		"title":  "Start",
+		"SetupSpotifyNotification" : "Please log in to Spotify by clicking the following page in your browser:",
+		"SetupSpotifyLink": url,
+		"header": "My Header - Setup",
+		"footer": "My Footer - Setup",
+	}
+
+	err := templates.ExecuteTemplate(w, "setupHTML", data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-}
-
-func createSpotiPiLink() {
-	url := auth.AuthURL(state)
-	p.SetupSpotifyNotification = "Please log in to Spotify by clicking the following page in your browser:"
-	p.SetupSpotifyLink = url
 }
 
 func CompleteAuth(w http.ResponseWriter, r *http.Request) {
@@ -37,11 +34,13 @@ func CompleteAuth(w http.ResponseWriter, r *http.Request) {
 	// use the token to get an authenticated client
 	client := auth.NewClient(tok)
 
-	var p = SetupParameters{
-		SetupSpotifyNotification: "Login completed",
+	data := map[string]interface{}{
+		"title":  "Start",
+		"header": "My Header - Index",
+		"footer": "My Footer - Index",
 	}
 
-	err = templates.ExecuteTemplate(w, overviewHtml, p)
+	err = templates.ExecuteTemplate(w, "indexHTML", data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

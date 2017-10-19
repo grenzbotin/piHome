@@ -34,13 +34,16 @@ func SpotiPiControl(w http.ResponseWriter, r *http.Request) {
 		log.Print(err)
 	}
 
-	var p = PlayerTemplateParameters{
-		TrackName:   trackName,
-		TrackArtist: trackArtist,
-		TrackImage:  trackImage,
+	data := map[string]interface{}{
+		"title":  "player",
+		"header": "My Header - player",
+		"footer": "My Footer - player",
+		"trackArtist": trackArtist,
+		"trackImage": trackImage,
+		"trackName": trackName,
 	}
 
-	err = templates.ExecuteTemplate(w, playerHtml, p)
+	err = templates.ExecuteTemplate(w, "playerHTML", data)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return

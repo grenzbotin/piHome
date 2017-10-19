@@ -6,6 +6,9 @@ import (
 	"github.com/zmb3/spotify"
 	"fmt"
 	"log"
+	"io/ioutil"
+	"strings"
+	"path/filepath"
 )
 
 const (
@@ -13,35 +16,54 @@ const (
 	spotify_client_id  = "clientId"
 	spotify_secret_key = "secretKey"
 )
-
 var (
 	// Input
 	auth  = spotify.NewAuthenticator(redirectURI, spotify.ScopeUserReadCurrentlyPlaying, spotify.ScopeUserReadPlaybackState, spotify.ScopeUserModifyPlaybackState)
 	ch    = make(chan *spotify.Client)
 	state = "piHome"
-
-	overviewHtml = "index.html"
-	setupHtml = "setup.html"
-	playerHtml   = "player.html"
-	templates    = template.Must(template.ParseFiles("html/"+overviewHtml, "html/"+playerHtml, "html/"+setupHtml))
-
 	client *spotify.Client
+
+	templateDirs = []string{"html", "data"}
+	templates *template.Template
 )
 
-type OverviewTemplateParameters struct {
-	Welcome string
+func getTemplates() (templates *template.Template, err error) {
+	var allFiles []string
+	for _, dir := range templateDirs {
+		files2, _ := ioutil.ReadDir(dir)
+		for _, file := range files2 {
+			filename := file.Name()
+			if strings.HasSuffix(filename, ".html") {
+				filePath := filepath.Join(dir, filename)
+				allFiles = append(allFiles, filePath)
+			}
+		}
+	}
+
+	templates, err = template.New("").ParseFiles(allFiles...)
+	return
 }
 
-type SetupParameters struct {
-	SetupSpotifyNotification string
-	SetupSpotifyLink string
+func init() {
+	templates, _ = getTemplates()
 }
 
-type PlayerTemplateParameters struct {
-	TrackName   string
-	TrackArtist string
-	TrackImage  string
+func rootHandler(wr http.ResponseWriter, req *http.Request) {
+	title := "index"
+
+	data := map[string]interface{}{
+		"title":  title,
+		"header": "My Header",
+		"footer": "My Footer",
+	}
+
+	err := templates.ExecuteTemplate(wr, "indexHTML", data)
+
+	if err != nil {
+		http.Error(wr, err.Error(), http.StatusInternalServerError)
+	}
 }
+
 
 func main() {
 	// FileServer for template resources
@@ -64,7 +86,7 @@ func main() {
 	}()
 
 	// http handler
-	http.HandleFunc("/", overviewContent)
+	http.HandleFunc("/", rootHandler)
 	http.HandleFunc("/setup", InitialSetup)
 	http.HandleFunc("/callback", CompleteAuth)
 	http.HandleFunc("/player/", SpotiPiControl)

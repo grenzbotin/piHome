@@ -1,23 +1,23 @@
-<html>
-<head>
-    <link href="https://fonts.googleapis.com/css?family=PT+Sans+Narrow" rel="stylesheet">
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
-    <link rel="stylesheet" type="text/css" href="/res/main.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
-    <script type="text/javascript" src="/res/main.js"></script>
+{{define "setupHTML"}}
 
-</head>
+{{template "headHTML" .}}
 <body class="w3-light-grey">
+{{template "headerHTML" .}}
+{{template "clockHTML" .}}
 
 <div class="w3-content w3-margin-top" style="max-width:1400px;">
-<div class="w3-row-padding">
+    <div class="w3-row-padding">
 
-    <div id="parent" class="w3-white w3-text-grey w3-card-4">
-        {{.SetupSpotifyNotification}} <br/>
-        <a href="{{.SetupSpotifyLink}}">Login with Spotify</a>
+        <div id="parent" class="w3-white w3-text-grey w3-card-4">
+            {{.SetupSpotifyNotification}} <br/>
+            <a href="{{.SetupSpotifyLink}}">Login with Spotify</a>
+        </div>
     </div>
 </div>
-</div>
+
+{{template "footerHTML" .}}
 
 </body>
 </html>
+
+{{end}}

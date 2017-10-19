@@ -1,30 +1,81 @@
-<div class="w3-content w3-margin-top" style="max-width:1400px;">
-<div class="w3-row-padding">
+{{define "playerHTML"}}
 
-    <div id="parent" class="w3-white w3-text-grey w3-card-4">
-  <div id="smallbox" style="text-align:center;"><img src="{{.TrackImage}}" width="200px" style="border:2px solid beige;" /></div>
-  <div id="rightbox">
-    <br/><br/>
-    <span class="trackArtist">{{.TrackArtist}}</span>
-    <br/>
-    <span class="trackTitle">{{.TrackName}}</span>
-    <br/>
-    <a id="play" href="javascript:void(0);" onclick="spotify(this.id)"><img src="/res/play-button.png" width="35px" style="margin:20px 5px 5px 0px;" /></a>
-    <a id="pause" href="javascript:void(0);" onclick="spotify(this.id)"><img src="/res/stop.png" width="35px" style="margin:20px 5px 5px 5px;" /></a>
-    <a id="next" href="javascript:void(0);" onclick="spotify(this.id)"><img src="/res/skip.png" width="35px" style="margin:20px 5px 5px 5px;" /></a>
-    <a id="previous" href="javascript:void(0);" onclick="spotify(this.id)"><img src="/res/previous.png" width="35px" style="margin:20px 5px 5px 5px;" /></a>
-  </div>
+{{template "headHTML" .}}
+<body class="w3-light-grey">
+{{template "headerHTML" .}}
+{{template "clockHTML" .}}
+
+<div class="w3-content w3-margin-top" style="max-width:1400px;">
+    <div class="w3-row-padding">
+
+        <div id="parent" class="w3-white w3-text-grey w3-card-4">
+            <div id="smallbox" style="text-align:center;"><img src="{{.trackImage}}" width="200px"
+                                                               style="border:2px solid beige;"/></div>
+            <div id="rightbox">
+                <br/><br/>
+                <span class="trackArtist">{{.trackArtist}}</span>
+                <br/>
+                <span class="trackTitle">{{.trackName}}</span>
+                <br/>
+                <a id="play" href="javascript:void(0);" onclick="spotify(this.id)"><img src="/res/play-button.png"
+                                                                                        width="35px"
+                                                                                        style="margin:20px 5px 5px 0px;"/></a>
+                <a id="pause" href="javascript:void(0);" onclick="spotify(this.id)"><img src="/res/stop.png"
+                                                                                         width="35px"
+                                                                                         style="margin:20px 5px 5px 5px;"/></a>
+                <a id="next" href="javascript:void(0);" onclick="spotify(this.id)"><img src="/res/skip.png" width="35px"
+                                                                                        style="margin:20px 5px 5px 5px;"/></a>
+                <a id="previous" href="javascript:void(0);" onclick="spotify(this.id)"><img src="/res/previous.png"
+                                                                                            width="35px"
+                                                                                            style="margin:20px 5px 5px 5px;"/></a>
+            </div>
+        </div>
     </div>
 </div>
-</div>
 
- <script type="text/javascript">
-   function spotify(clicked_id)
-{
-   $.ajax({
-     type: "GET",
-     url: 'http://soda.local:8080/player/'+clicked_id,
-   });
+{{template "footerHTML" .}}
 
-}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        function spotify(clicked_id) {
+            $.ajax({
+                type: "GET",
+                url: 'http://soda.local:8080/player/' + clicked_id,
+            });
+
+        }
+
+        var d = new Date();
+        var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+        var date = document.getElementById("date");
+        var time = document.getElementById("time");
+
+        function getDate() {
+            date.innerHTML = monthNames[d.getMonth()] + " " + d.getDate() + ", " + d.getFullYear();
+        }
+
+        function timer() {
+            var d = new Date();
+            var hours = d.getHours();
+            var minutes = d.getMinutes();
+            var ampm = hours <= 11 ? 'am' : 'pm';
+            var strTime = [hours % 12,
+                (minutes < 10 ? "0" + minutes : minutes)
+            ].join(':') + ampm;
+            time.innerHTML = strTime;
+        }
+
+        getDate();
+        timer();
+
+        setInterval(getDate, 60000);
+        setInterval(timer, 10000);
+    });
 </script>
+
+</body>
+</html>
+{{end}}
