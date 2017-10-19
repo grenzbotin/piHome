@@ -1,18 +1,17 @@
 package main
 
 import (
-	"fmt"
 	"html/template"
-	"log"
 	"net/http"
-
 	"github.com/zmb3/spotify"
+	"fmt"
+	"log"
 )
 
 const (
-	redirectURI        = "http://piName.local:8080/callback"
-	spotify_client_id  = ""
-	spotify_secret_key = ""
+	redirectURI        = "http://soda.local:8080/callback"
+	spotify_client_id  = "clientId"
+	spotify_secret_key = "secretKey"
 )
 
 var (
@@ -22,14 +21,20 @@ var (
 	state = "piHome"
 
 	overviewHtml = "index.html"
+	setupHtml = "setup.html"
 	playerHtml   = "player.html"
-	templates    = template.Must(template.ParseFiles("html/"+overviewHtml, "html/"+playerHtml))
+	templates    = template.Must(template.ParseFiles("html/"+overviewHtml, "html/"+playerHtml, "html/"+setupHtml))
 
 	client *spotify.Client
 )
 
 type OverviewTemplateParameters struct {
-	Notification string
+	Welcome string
+}
+
+type SetupParameters struct {
+	SetupSpotifyNotification string
+	SetupSpotifyLink string
 }
 
 type PlayerTemplateParameters struct {
@@ -46,16 +51,7 @@ func main() {
 	// Spotify setup
 	auth.SetAuthInfo(spotify_client_id, spotify_secret_key)
 
-	// http handler
-	http.HandleFunc("/", overviewContent)
-	http.HandleFunc("/callback", completeAuth)
-	http.HandleFunc("/player/", SpotiPiControl)
-
 	go func() {
-		//TODO: Authentication via UI
-		url := auth.AuthURL(state)
-		fmt.Println("Please log in to Spotify by visiting the following page in your browser:", url)
-
 		// wait for auth to complete
 		client = <-ch
 
@@ -67,30 +63,11 @@ func main() {
 		fmt.Println("You are logged in as:", user.ID)
 	}()
 
+	// http handler
+	http.HandleFunc("/", overviewContent)
+	http.HandleFunc("/setup", InitialSetup)
+	http.HandleFunc("/callback", CompleteAuth)
+	http.HandleFunc("/player/", SpotiPiControl)
+
 	http.ListenAndServe(":8080", nil)
-}
-
-func completeAuth(w http.ResponseWriter, r *http.Request) {
-	tok, err := auth.Token(state, r)
-	if err != nil {
-		http.Error(w, "Couldn't get token", http.StatusForbidden)
-		log.Fatal(err)
-	}
-	if st := r.FormValue("state"); st != state {
-		http.NotFound(w, r)
-		log.Fatalf("State mismatch: %s != %s\n", st, state)
-	}
-	// use the token to get an authenticated client
-	client := auth.NewClient(tok)
-
-	var p = OverviewTemplateParameters{
-		Notification: "Login completed",
-	}
-
-	err = templates.ExecuteTemplate(w, overviewHtml, p)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	ch <- &client
 }
